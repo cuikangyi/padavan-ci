@@ -21,7 +21,7 @@ jobs:
 
       - name: config
         env:
-          toolchain_url: "https://github.com/hanwckf/padavan-toolchain/releases/download/v1.0/mipsel-linux-uclibc.tar.xz"
+          toolchain_url: "https://github.com/hanwckf/padavan-toolchain/releases/download/v1.1/mipsel-linux-uclibc.tar.xz"
         run: |
           chmod a+x build_firmware_modify && cp build_firmware_modify /opt/
           cd /opt && git clone --depth=1 https://github.com/hanwckf/rt-n56u.git
