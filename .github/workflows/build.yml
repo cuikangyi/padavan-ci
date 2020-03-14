@@ -31,7 +31,7 @@ jobs:
 
       - name: build
         env: 
-          targets: "MR2600-5.0 MI-MINI"
+          targets: "MR2600-5.0 MR2600 MI-MINI"
         run: |
           ls -Alh /opt/rt-n56u && cd /opt/rt-n56u/trunk/
           for m in $targets; do fakeroot ./build_firmware_nohup $m && cp -f images/*.trx /opt/images/$m.trx; ./clear_tree_simple >/dev/null 2>&1; done
