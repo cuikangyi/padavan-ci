@@ -1,6 +1,8 @@
 name: Padavan Builder
 
-on: repository_dispatch
+on:
+  repository_dispatch:
+    types: [build, release]
 
 jobs:
   build:
@@ -17,14 +19,14 @@ jobs:
             cpio git python-docutils gettext automake autopoint texinfo build-essential help2man \
             pkg-config zlib1g-dev libgmp3-dev libmpc-dev libmpfr-dev libncurses5-dev libltdl-dev
 
-      - name: config
+      - name: Config
         run: |
           git clone --depth=1 https://github.com/hanwckf/rt-n56u.git /opt/rt-n56u
           cd /opt/rt-n56u/toolchain-mipsel/
           sh dl_toolchain.sh
           mkdir -p /opt/images
 
-      - name: build
+      - name: Build
         env:
           targets: ${{ github.event.client_payload.targets }}
           config: ${{ github.event.client_payload.config }}
@@ -41,11 +43,25 @@ jobs:
             ./clear_tree_simple >/dev/null 2>&1
           done
 
-      - name: md5sum
-        run: cd /opt/images && md5sum *.trx | tee md5sum.txt
+      - name: Prepare
+        id: prepare
+        run: |
+          cd /opt/images
+          md5sum *.trx | tee md5sum.txt
+          echo "::set-output name=tag_name::$(TZ='Asia/Shanghai' date '+v%Y.%m.%d')"
 
-      - name : upload
+      - name : Upload-artifact
         uses: actions/upload-artifact@master
         with:
           name: Padavan
           path: /opt/images
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: github.event.action == 'release'
+        with:
+          tag_name: ${{ steps.prepare.outputs.tag_name }}
+          body_path: /opt/images/md5sum.txt
+          files: /opt/images/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
